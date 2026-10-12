@@ -19,11 +19,22 @@ CLASSES = [
 CLASS2LABEL = {c: i for i, c in enumerate(CLASSES)}
 NUM_CLASSES = len(CLASSES)
 
-# RGB colours used when exporting predictions for visualization.
+# RGB colours used when exporting predictions (PLY files and the HTML viewer).
+# Chosen to stay distinguishable on both dark and light backgrounds.
 CLASS_COLORS = np.array([
-    [0, 255, 0], [0, 0, 255], [0, 255, 255], [255, 255, 0], [255, 0, 255], [100, 100, 255],
-    [200, 200, 100], [170, 120, 200], [255, 0, 0], [200, 100, 100], [10, 200, 100],
-    [200, 200, 200], [50, 50, 50],
+    [201, 178, 143],  # ceiling  - sand
+    [138, 111, 78],   # floor    - brown
+    [127, 157, 185],  # wall     - steel blue
+    [224, 160, 58],   # beam     - amber
+    [181, 101, 29],   # column   - rust
+    [79, 195, 217],   # window   - cyan
+    [155, 107, 214],  # door     - violet
+    [229, 83, 61],    # table    - red
+    [242, 194, 48],   # chair    - yellow
+    [217, 79, 138],   # sofa     - pink
+    [63, 174, 106],   # bookcase - green
+    [91, 124, 250],   # board    - blue
+    [154, 163, 173],  # clutter  - grey
 ], dtype=np.uint8)
 
 

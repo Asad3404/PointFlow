@@ -42,11 +42,13 @@ pointnet/
     s3dis.py          segmentation block datasets, whole-scene blocking, object dataset
     transforms.py     rotation / scaling / jitter / shuffle augmentations
     dummy.py          synthetic rooms in the raw S3DIS layout (for smoke tests)
+  viewer.py           builds the self-contained three.js viewer page
 prepare_s3dis.py      preprocessing CLI
 train_seg.py          train semantic segmentation
 test_seg.py           whole-room evaluation with sliding-window voting + PLY export
 train_cls.py          train object classification
 test_cls.py           evaluate classification with multi-vote testing
+visualize.py          interactive 3D HTML viewer of predictions vs. ground truth
 make_dummy_data.py    build a tiny synthetic dataset to try the pipeline on CPU
 tests/                pytest suite (model, metrics, datasets, end-to-end scripts)
 ```
@@ -85,6 +87,21 @@ python test_seg.py  --data-root data/s3dis_npy --checkpoint runs/seg/best.pth --
 * **Final evaluation.** `test_seg.py` covers each test room with overlapping blocks (`--stride 0.5`). It sums the softmax scores for every original point across all the blocks that contain it (and across `--num-votes` re-samplings), then takes the argmax. It reports OA, mAcc, per-class IoU and mIoU over **all points** of the test area.
 * **Visualization.** `--visualize` writes `*_pred.ply` and `*_gt.ply` files with class colours. Open them in MeshLab or CloudCompare.
 
+### Interactive 3D viewer
+
+```bash
+python visualize.py --data-root data/s3dis_npy --checkpoint runs/seg/best.pth --out runs/seg/viewer.html
+```
+
+This runs the model on the test rooms and writes one HTML file. Open it in a browser to:
+
+* orbit, pan and zoom through each room (drag, shift-drag or right-drag, scroll, pinch on touch screens)
+* colour the points by prediction, ground truth, an error map (misclassified points in red) or the original RGB
+* read OA and mIoU for the room and the whole test area, plus per-class IoU
+* click a class in the legend to hide or show it
+
+The page loads three.js from a CDN, so it needs an internet connection. Use `--max-rooms` and `--max-points` to keep the file small; metrics always use every point.
+
 Useful flags: `--class-weights` (inverse-frequency weighted loss), `--no-input-transform` and `--no-feature-transform` (ablations), and `--sample-rate` (sets how many blocks make up one epoch).
 
 ## Object classification
@@ -110,6 +127,7 @@ You can check the whole pipeline on synthetic rooms in a few minutes on a CPU:
 python make_dummy_data.py --raw-root data/dummy_raw --out data/dummy_npy
 python train_seg.py --data-root data/dummy_npy --log-dir runs/dummy_seg --epochs 15 --num-point 1024 --batch-size 8 --sample-rate 5
 python test_seg.py  --data-root data/dummy_npy --checkpoint runs/dummy_seg/best.pth
+python visualize.py --data-root data/dummy_npy --checkpoint runs/dummy_seg/best.pth   # writes runs/dummy_seg/viewer.html
 python train_cls.py --data-root data/dummy_npy --log-dir runs/dummy_cls --epochs 15 --num-point 256 --batch-size 8
 ```
 

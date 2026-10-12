@@ -115,3 +115,15 @@ def test_end_to_end_scripts(npy_root, tmp_path):
     cm = test_cls.main(["--data-root", npy_root, "--checkpoint", f"{cls_dir}/best.pth", "--device", "cpu",
                         "--num-votes", "2"])
     assert cm.matrix.sum() == 8
+
+
+def test_viewer_html(npy_root):
+    from pointnet.viewer import build_viewer_html, encode_room
+
+    data = np.load(f"{npy_root}/Area_5_office_1.npy")
+    labels = data[:, 6].astype(np.int64)
+    room = encode_room("office_1", data[:, :3], data[:, 3:6], labels, labels, max_points=500)
+    assert room["n"] == 500 and room["metrics"]["oa"] == pytest.approx(1.0)
+    html = build_viewer_html([room], title="Test Viewer")
+    assert html.startswith("<!doctype html>") and "<title>Test Viewer</title>" in html
+    assert "__DATA__" not in html
